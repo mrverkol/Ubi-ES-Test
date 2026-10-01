@@ -1,0 +1,46 @@
+{
+  "version": "1.0",
+  "provider": "OpenAI Responses API + built-in web search",
+  "models": {
+    "generation": "gpt-5.6-luna",
+    "validation": "gpt-5.6-sol"
+  },
+  "endpoints": [
+    {
+      "method": "POST",
+      "path": "/api/v1/games/{gameId}/players/{playerId}/joker/validate",
+      "purpose": "Validate and store category + Joker topic at connection",
+      "errors": [
+        "INVALID_REQUEST",
+        "INVALID_CATEGORY",
+        "TOPIC_TOO_NARROW",
+        "OPENAI_NOT_CONFIGURED",
+        "VALIDATOR_UNAVAILABLE"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/games/{gameId}/players/{playerId}/joker/use",
+      "purpose": "Generate one READY Joker question from server-side approved topic",
+      "errors": [
+        "PLAYER_NOT_FOUND",
+        "JOKER_ALREADY_USED",
+        "JOKER_NOT_APPROVED",
+        "NO_QUALIFIED_QUESTION",
+        "GENERATOR_UNAVAILABLE"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/health",
+      "purpose": "Health/configuration check"
+    }
+  ],
+  "ready_requirements": {
+    "sources_minimum": 2,
+    "distinct_source_domains_minimum": 2,
+    "max_answer_seconds": 30,
+    "level": "N1-N6",
+    "source_agreement": true
+  }
+}
