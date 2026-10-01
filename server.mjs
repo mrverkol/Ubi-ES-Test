@@ -60,7 +60,28 @@ function error(res, code, message, status=400, extra={}) {
 function cleanTopic(v) {
   return String(v ?? "").trim().replace(/\s+/g," ").slice(0,120);
 }
-function validCategory(c) { return CATEGORIES.has(c); }
+function normalizeCategory(c) {
+  const map = {
+    "Geografi": "GEOGRAFI",
+    "Historie": "HISTORIE",
+    "Sport": "SPORT",
+    "Musik": "MUSIK",
+    "Film": "FILM",
+    "TV-serier": "TV_SERIER",
+    "Natur & Dyr": "NATUR_DYR",
+    "Videnskab & Teknologi": "VIDENSKAB_TEKNOLOGI",
+    "Mad & Drikke": "MAD_DRIKKE",
+    "Kultur & Litteratur": "KULTUR_LITTERATUR",
+    "Samfund & Verden": "SAMFUND_VERDEN",
+    "Almen Viden": "ALMEN_VIDEN"
+  };
+
+  return map[c] || c;
+}
+
+function validCategory(c) {
+  return CATEGORIES.has(normalizeCategory(c));
+}
 function ensureGame(gameId) {
   let g = games.get(gameId);
   if (!g) { g = { players:new Map() }; games.set(gameId,g); }
@@ -209,9 +230,17 @@ app.get("/health", (_,res)=>res.json({
 /* Frontend/backend registration: the backend becomes the authoritative Joker state. */
 app.post("/api/v1/games/:gameId/players/:playerId/joker/validate", async (req,res)=>{
   const {gameId,playerId}=req.params;
-  const {categoryId,topic}=req.body||{};
-  if(!categoryId || !topic) return error(res,"INVALID_REQUEST","categoryId og topic er påkrævet.",400);
-  if(!validCategory(categoryId)) return error(res,"INVALID_CATEGORY","Ugyldig UBI ES-kategori.",422);
+let {categoryId,topic}=req.body||{};
+
+if(!categoryId || !topic) {
+  return error(res,"INVALID_REQUEST","categoryId og topic er påkrævet.",400);
+}
+
+categoryId=normalizeCategory(categoryId);
+
+if(!validCategory(categoryId)) {
+  return error(res,"INVALID_CATEGORY","Ugyldig UBI ES-kategori.",422);
+}
   const clean=cleanTopic(topic);
   if(clean.length<3) return error(res,"TOPIC_TOO_NARROW","Dit emne er for snævert til at vi kan lave kvalificerede spørgsmål.",422,{alternatives:[]});
 
