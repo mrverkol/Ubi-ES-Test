@@ -3,8 +3,38 @@ import crypto from "crypto";
 import OpenAI from "openai";
 
 const app = express();
-app.use(express.json({ limit: "64kb" }));
 
+/* CORS: allow GitHub Pages frontend to receive API responses */
+const configuredOrigins = String(
+  process.env.FRONTEND_ORIGIN || "https://mrverkol.github.io"
+)
+  .split(",")
+  .map(s => s.trim())
+  .filter(Boolean);
+
+const allowedOrigins = new Set([
+  "https://mrverkol.github.io",
+  ...configuredOrigins
+]);
+
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+
+  if (origin && allowedOrigins.has(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Vary", "Origin");
+    res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  }
+
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(204);
+  }
+
+  next();
+});
+
+app.use(express.json({ limit: "64kb" }));
 const PORT = Number(process.env.PORT || 3000);
 const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-5.6-luna";
 const VALIDATOR_MODEL = process.env.VALIDATOR_MODEL || "gpt-5.6-sol";
