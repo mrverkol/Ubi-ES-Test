@@ -214,6 +214,17 @@ app.post("/api/v1/games/:gameId/players/:playerId/joker/validate", async (req,re
   if(!validCategory(categoryId)) return error(res,"INVALID_CATEGORY","Ugyldig UBI ES-kategori.",422);
   const clean=cleanTopic(topic);
   if(clean.length<3) return error(res,"TOPIC_TOO_NARROW","Dit emne er for snævert til at vi kan lave kvalificerede spørgsmål.",422,{alternatives:[]});
+
+const p=ensurePlayer(gameId,playerId);
+
+console.log("JOKER VALIDATED", {
+  gameId,
+  playerId,
+  process: process.pid,
+  hasGame: games.has(gameId),
+  hasPlayer: games.get(gameId)?.players.has(playerId)
+});
+  
   try {
     const result=await validateTopic({gameId,playerId,categoryId,topic:clean});
     if(!result.approved) {
@@ -222,7 +233,6 @@ app.post("/api/v1/games/:gameId/players/:playerId/joker/validate", async (req,re
         422,{alternatives:result.data.alternatives||[]});
     }
     const validationId="JV-"+crypto.randomUUID();
-    const p=ensurePlayer(gameId,playerId);
     p.joker={categoryId,topic:clean,normalizedTopic:result.data.normalizedTopic,
       validationId,status:"APPROVED",validatedAt:new Date().toISOString()};
     return res.json({status:"APPROVED",categoryId,topic:clean,
@@ -239,8 +249,16 @@ app.post("/api/v1/games/:gameId/players/:playerId/joker/validate", async (req,re
 app.post("/api/v1/games/:gameId/players/:playerId/joker/use", async (req,res)=>{
   const {gameId,playerId}=req.params;
   const {turnId,level}=req.body||{};
-  const p=games.get(gameId)?.players.get(playerId);
-  if(!p) return error(res,"PLAYER_NOT_FOUND","Spilleren findes ikke.",404);
+  console.log("JOKER USE", {
+  gameId,
+  playerId,
+  process: process.pid,
+  hasGame: games.has(gameId),
+  hasPlayer: games.get(gameId)?.players.has(playerId)
+});
+
+const p=games.get(gameId)?.players.get(playerId);
+if(!p) return error(res,"PLAYER_NOT_FOUND","Spilleren findes ikke.",404);
   if(p.jokerUsed) return error(res,"JOKER_ALREADY_USED","Jokeren er allerede brugt.",409);
   if(!p.joker || p.joker.status!=="APPROVED") return error(res,"JOKER_NOT_APPROVED","Joker-emnet er ikke godkendt.",409);
 
