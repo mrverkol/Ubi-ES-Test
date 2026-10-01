@@ -26,7 +26,7 @@ h1,h2,h3{color:var(--navy)}
 .die-iso{width:64px;height:64px;display:block;margin:4px auto 2px;filter:drop-shadow(0 6px 5px #0003);overflow:visible}.die-iso .edge{stroke:#fff;stroke-opacity:.58;stroke-width:1.4;stroke-linejoin:round}.die-iso .pip{fill:#fff}.die-iso.yellow-die .pip{fill:#10283a}.die-iso .shade{opacity:.12;fill:#000}
 .color-key{display:flex;justify-content:center;gap:3px;margin-top:3px}.color-key i{width:7px;height:7px;border-radius:2px;display:block}.color-key i:nth-child(1){background:#d92f3d}.color-key i:nth-child(2){background:#1782d4}.color-key i:nth-child(3){background:#149348}.color-key i:nth-child(4){background:#f4c62d}.color-key i:nth-child(5){background:#7a35ae}.color-key i:nth-child(6){background:#ff6b18}
 .mp-note{font-size:12px;background:#eef7ff;border-radius:9px;padding:9px;margin:8px 0}</style><script src="https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js"></script></head><body><div class="app"><header class="top"><span>☰</span><span class="brand">UBI ES</span><span class="ver" id="topLabel">UBI ES v1.0 – AI Joker</span></header><div id="scorebar" class="scorebar hidden"></div><main class="main" id="main"></main><nav class="bottom hidden" id="bottom"><button onclick="showOverlay('score')"><b>▦</b>Score</button><button onclick="showOverlay('history')"><b>◷</b>Historik</button><button onclick="showOverlay('rules')"><b>▣</b>Regler</button><button onclick="showOverlay('game')"><b>⚙</b>Spil</button></nav></div><script>
-const UBI_ES_API = window.UBI_ES_API || "";
+const UBI_ES_API = window.UBI_ES_API || "https://ubi-es-api.onrender.com";
 async function ubiApi(path, options={}) {
   const r = await fetch(UBI_ES_API + path, {
     headers: {"Content-Type":"application/json", ...(options.headers||{})},
